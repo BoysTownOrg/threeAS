@@ -14,10 +14,10 @@ int pic1dur = 400;
 int stimdur = 400;
 int pic2dur = 400;
 int endblankdur = 1300;
-private int lastMillis = 0;
+boolean init = true;
 void setup() {
-  size(800, 800);
-
+  //size(800, 800);
+  fullScreen();
   table = loadTable("3as.csv", "header");
   newTable = new Table();
   newTable.addColumn("picture");
@@ -28,11 +28,12 @@ void setup() {
   newTable.addColumn("answer");
   newTable.addColumn("RT");
   newTable.addColumn("correct");
-
+  textAlign(CENTER,CENTER);
+  textSize(32); 
   for (int i = 0; i < table.getRowCount(); i++) {
     trialnums.append(i);
   }
-  //trialnums.shuffle();
+  trialnums.shuffle();
   println(trialnums.max());
   println(trialnums.min());
   blank = loadImage("blank.png");
@@ -50,6 +51,9 @@ void draw() {
   } else if (showPic1) {
     image(picture, width/4, height/4, width/2, height/2);
   }
+  if (init) {
+    text("Press the numbers 3, 4, 5, or 6 \naccording to HOW MANY numbers you see.\nPress space to begin.", width/2, height/2);
+  }
 }
 
 void onTimerEvent() {
@@ -59,20 +63,28 @@ void onTimerEvent() {
     FirstPicFlag = true;
     noMore = true;
     if (rowCount >= table.getRowCount()) {
-      saveTable(newTable, "new.csv", "csv");
+      myTimedEventGenerator.setEnabled(false); 
+      String dayS = String.valueOf(day());
+      String hourS = String.valueOf(hour());
+      String minuteS = String.valueOf(minute());
+      String myfilename = "AS3out"+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
+      saveTable(newTable, myfilename, "csv");
       println("Exit");
       exit();
     }
   } else if (saveTime+pic1dur+stimdur+pic2dur<millis()) {
     showBlank = true;
-    showPic1 = true;
+    showPic1 = false;
     showStim = false;
     showPic2 = false;
   } else if (saveTime+stimdur+pic1dur<millis()) {
     showPic2=true;
+    showBlank = false;
+    showPic1 = false;
+    showStim = false;
   } else if (saveTime+pic1dur<millis()) {
     showStim = true;
-    showPic1 = true;
+    showPic1 = false;
     showPic2 = false;
     showBlank = false;
     if (stimflag) {
@@ -104,6 +116,7 @@ void keyPressed() {
 
   if (key == ' ') {
     saveTime = millis()+1000;
+    init = false;
   }
   if (key == '3' && noMore) {
     noMore = false;
