@@ -1,5 +1,17 @@
+int pic1dur = 400;  //in msec
+int stimdur = 400;
+int pic2dur = 400;
+int endblankdur = 1300;
+int bgcolor = 128; //black = 0, 128 gray, 255 white; 
+char threekey = '3'; //changing this may require a change to instructionText below
+char fourkey = '4';
+char fivekey = '5';
+char sixkey = '6';
+String instructionText = "Press the number keys 3, 4, 5, or 6 \naccording to HOW MANY numbers you see.\nPress space to begin.";
+
 import org.multiply.processing.TimedEventGenerator;
 private TimedEventGenerator myTimedEventGenerator;
+
 PImage picture, stimulus, blank;  // Declare variable "a" of type PImage
 String path;
 Table table, newTable;
@@ -10,14 +22,11 @@ int rowCount=0, answer, correct, index;
 int saveTime = millis()+1000000;
 int stimTime, respTime;
 IntList trialnums = new IntList();
-int pic1dur = 400;
-int stimdur = 400;
-int pic2dur = 400;
-int endblankdur = 1300;
 boolean init = true;
 void setup() {
   //size(800, 800);
   fullScreen();
+  background(bgcolor);
   table = loadTable("3as.csv", "header");
   newTable = new Table();
   newTable.addColumn("picture");
@@ -52,7 +61,7 @@ void draw() {
     image(picture, width/4, height/4, width/2, height/2);
   }
   if (init) {
-    text("Press the numbers 3, 4, 5, or 6 \naccording to HOW MANY numbers you see.\nPress space to begin.", width/2, height/2);
+    text(instructionText, width/2, height/2);
   }
 }
 
@@ -118,28 +127,28 @@ void keyPressed() {
     saveTime = millis()+1000;
     init = false;
   }
-  if (key == '3' && noMore) {
+  if (key == threekey && noMore) {
     noMore = false;
     respTime = millis();
     newTable.setInt(rowCount, "answer", 3);
     newTable.setInt(rowCount, "correct", int(3==correct));
     newTable.setFloat(rowCount, "RT", respTime-stimTime);
   }
-  if (key == '4' && noMore) {
+  if (key == fourkey && noMore) {
     noMore = false;
     respTime = millis();
     newTable.setInt(rowCount, "answer", 4);
     newTable.setInt(rowCount, "correct", int(4==correct));
     newTable.setFloat(rowCount, "RT", respTime-stimTime);
   }
-  if (key == '5' && noMore) {
+  if (key == fivekey && noMore) {
     noMore = false;
     respTime = millis();
     newTable.setInt(rowCount, "answer", 5);
     newTable.setInt(rowCount, "correct", int(5==correct));
     newTable.setFloat(rowCount, "RT", respTime-stimTime);
   }
-  if (key == '6' && noMore) {
+  if (key == sixkey && noMore) {
     noMore = false;
     respTime = millis();
     newTable.setInt(rowCount, "answer", 6);
