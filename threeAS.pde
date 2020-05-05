@@ -47,8 +47,8 @@ void setup() {
     trialnums.append(i);
   }
   trialnums.shuffle();
-  println(trialnums.max());
-  println(trialnums.min());
+  //println(trialnums.max());
+  //println(trialnums.min());
   blank = loadImage("blank.png");
   black = loadImage("black.png");
 }
@@ -56,7 +56,7 @@ void setup() {
 void draw() {
   if (saveTime+pic1dur+stimdur+pic2dur+endblankdur<frameCount) {
     saveTime = frameCount;
-    println(frameCount);
+    //println(frameCount);
     rowCount += 1;
     FirstPicFlag = true;
     noMore = true;
@@ -67,23 +67,23 @@ void draw() {
       String minuteS = String.valueOf(minute());
       String myfilename = "AS3out"+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
       saveTable(newTable, myfilename, "csv");
-      println("Exit");
+      //println("Exit");
       exit();
     }
   } else if (saveTime+pic1dur+stimdur+pic2dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showBlank = true;
     showPic1 = false;
     showStim = false;
     showPic2 = false;
   } else if (saveTime+stimdur+pic1dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showPic2=true;
     showBlank = false;
     showPic1 = false;
     showStim = false;
   } else if (saveTime+pic1dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showStim = true;
     showPic1 = false;
     showPic2 = false;
@@ -94,7 +94,7 @@ void draw() {
     }
   } else if (saveTime<frameCount) {
     if (FirstPicFlag) {
-      println(frameCount);
+      //println(frameCount);
       stimflag = true;
       index = trialnums.get(rowCount);
       //println(rowCount);
@@ -133,6 +133,7 @@ void keyPressed() {
   if (key == ' ') {
     saveTime = frameCount+6;
     init = false;
+    background(bgcolor);
   }
   if (key == threekey && noMore) {
     noMore = false;
