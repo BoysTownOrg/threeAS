@@ -19,23 +19,24 @@ public class threeAS extends PApplet {
 //int stimdur = 400;
 //int pic2dur = 400;
 //int endblankdur = 1300;
-int pic1dur = 24;  //in frames
-int stimdur = 24;
-int pic2dur = 24;
-int endblankdur = 78;
+int pic1dur = 12;  //in frames
+int stimdur = 12;
+int pic2dur = 12;
+int endblankdur = 39;
 int bgcolor = 255; //black = 0, 128 gray, 255 white; 
 char threekey = '3'; //changing this may require a change to instructionText below
 char fourkey = '4';
 char fivekey = '5';
 char sixkey = '6';
 String instructionText = "Whenever you see numbers appear on the screen,\n\nyou press the number keys 3, 4, 5, or 6 \n\naccording to HOW MANY numbers you see on the screen.\n\nTry to respond as quickly and accurately as you can.\n\nPress space to begin.";
-
+int curtime,framenum,calctime,frameadj;
+int myframerate = 30;
 
 PImage picture, stimulus, blank, black;  // Declare variable "a" of type PImage
 String path;
 Table table, newTable;
 TableRow row;
-boolean stimflag=true, FirstPicFlag=true, noMore = true;
+boolean stimflag=true, FirstPicFlag=true, noMore = true,f1=false,f2=false,f3=false,f4=false;
 boolean showPic1=false, showStim=false, showPic2=false, showBlank=false;
 int rowCount=0, answer, correct, index;
 int saveTime = frameCount+1000000;
@@ -44,9 +45,11 @@ IntList trialnums = new IntList();
 boolean init = true;
 public void setup() {
   //size(800, 800);
-  frameRate(60);
+  frameRate(myframerate);
+  //println(frameRate);
   
   background(bgcolor);
+  framenum = frameCount;
   table = loadTable("3as.csv", "header");
   newTable = new Table();
   newTable.addColumn("picture");
@@ -63,16 +66,16 @@ public void setup() {
     trialnums.append(i);
   }
   trialnums.shuffle();
-  println(trialnums.max());
-  println(trialnums.min());
+  //println(trialnums.max());
+  //println(trialnums.min());
   blank = loadImage("blank.png");
   black = loadImage("black.png");
+  curtime = millis();
 }
 
 public void draw() {
   if (saveTime+pic1dur+stimdur+pic2dur+endblankdur<frameCount) {
-    saveTime = frameCount;
-    println(frameCount);
+    //println("xxxx");
     rowCount += 1;
     FirstPicFlag = true;
     noMore = true;
@@ -83,43 +86,47 @@ public void draw() {
       String minuteS = String.valueOf(minute());
       String myfilename = "AS3out"+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
       saveTable(newTable, myfilename, "csv");
-      println("Exit");
+      //println("Exit");
       exit();
     }
+    saveTime = frameCount;
   } else if (saveTime+pic1dur+stimdur+pic2dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showBlank = true;
     showPic1 = false;
     showStim = false;
     showPic2 = false;
   } else if (saveTime+stimdur+pic1dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showPic2=true;
     showBlank = false;
     showPic1 = false;
     showStim = false;
   } else if (saveTime+pic1dur<frameCount) {
-    println(frameCount);
+    //println(frameCount);
     showStim = true;
     showPic1 = false;
     showPic2 = false;
     showBlank = false;
     if (stimflag) {
-      stimTime = frameCount;
+      stimTime = millis();
       stimflag = false;
     }
   } else if (saveTime<frameCount) {
     if (FirstPicFlag) {
-      println(frameCount);
       stimflag = true;
+      f4=true;
+      int tmptime = millis();
       index = trialnums.get(rowCount);
-      //println(rowCount);
-      //println(index);
       row = table.getRow(index);
       newTable.addRow(row);
       correct = PApplet.parseInt(row.getString("correctresponse"))+2;
       picture = loadImage(trim(row.getString("picture")));
       stimulus = loadImage(trim(row.getString("stimulus")));
+      calctime = millis()-tmptime;
+      frameadj=round(calctime/myframerate);
+      //println(frameadj);
+      saveTime -= frameadj;
       FirstPicFlag = false;
       showPic1 = true;
       showStim = false;
@@ -131,12 +138,33 @@ public void draw() {
 
   if (showBlank) {
     image(blank, width/4, height/4, width/2, height/2);
+    if (f1){
+      //println(millis()-curtime,frameCount-framenum,frameRate);
+      f1=false;
+    }
   } else if (showPic2) {
     image(picture, width/4, height/4, width/2, height/2);
+    if (f2){
+      //println(millis()-curtime,frameCount-framenum,frameRate);
+      f2=false;
+      f1=true;
+    }
   } else if (showStim) {
     image(stimulus, width/4, height/4, width/2, height/2);
-  } else if (showPic1) {
+      if (f3){
+      //println(millis()-curtime,frameCount-framenum,frameRate);
+      f3=false;
+      f2=true;
+    }
+} else if (showPic1) {
     image(picture, width/4, height/4, width/2, height/2);
+    if (f4){
+      //println(millis()-curtime);
+      curtime = millis();
+      framenum = frameCount;   
+      f4=false;
+      f3=true;
+    }
   }
   if (init) {
     fill(0);
@@ -149,6 +177,7 @@ public void keyPressed() {
   if (key == ' ') {
     saveTime = frameCount+6;
     init = false;
+    background(bgcolor);
   }
   if (key == threekey && noMore) {
     noMore = false;
@@ -179,6 +208,7 @@ public void keyPressed() {
     newTable.setFloat(rowCount, "RT", respTime-stimTime);
   }
 }
+
   public void settings() {  fullScreen(); }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "threeAS" };

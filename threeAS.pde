@@ -93,7 +93,7 @@ void draw() {
     showPic2 = false;
     showBlank = false;
     if (stimflag) {
-      stimTime = frameCount;
+      stimTime = millis();
       stimflag = false;
     }
   } else if (saveTime<frameCount) {
