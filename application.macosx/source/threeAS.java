@@ -14,42 +14,41 @@ import java.io.IOException;
 
 public class threeAS extends PApplet {
 
-
-//int pic1dur = 400;  //in msec
-//int stimdur = 400;
-//int pic2dur = 400;
-//int endblankdur = 1300;
-int pic1dur = 12;  //in frames
-int stimdur = 12;
-int pic2dur = 12;
-int endblankdur = 39;
+int pic1dur = 400;  //in msec
+int stimdur = 400;
+int pic2dur = 400;
+int endblankdur = 1300;
 int bgcolor = 255; //black = 0, 128 gray, 255 white; 
 char threekey = '3'; //changing this may require a change to instructionText below
 char fourkey = '4';
 char fivekey = '5';
 char sixkey = '6';
-String instructionText = "Whenever you see numbers appear on the screen,\n\nyou press the number keys 3, 4, 5, or 6 \n\naccording to HOW MANY numbers you see on the screen.\n\nTry to respond as quickly and accurately as you can.\n\nPress space to begin.";
-int curtime, framenum, calctime, frameadj;
-int myframerate = 30;
+String instructionText = "Whenever you see numbers appear on the screen,\n\n"+
+  "you press the number keys 3, 4, 5, or 6 \n\n"+"according to HOW MANY numbers you see on the screen.\n\n"+
+  "Try to respond as quickly and accurately as you can.\n\n"+
+  "Press space to begin.";
+int myframerate = 60;
 
-PImage picture, stimulus, blank, black;  // Declare variable "a" of type PImage
+PImage picture, stimulus, blank;
 String path;
 Table table, newTable;
 TableRow row;
-boolean stimflag=true, FirstPicFlag=true, noMore = true, f1=false, f2=false, f3=false, f4=false;
+boolean stimflag=true, FirstPicFlag=true, noMore = true;
 boolean showPic1=false, showStim=false, showPic2=false, showBlank=false;
 int rowCount=0, answer, correct, index;
-int saveTime = frameCount+1000000;
+int saveTime = millis()+1000000;
 int stimTime, respTime;
 IntList trialnums = new IntList();
+int tablesize = 500;
+int [] corrects = new int[tablesize];
+String [] pictures = new String[tablesize];
+String [] stimuli = new String[tablesize];
 boolean init = true;
 public void setup() {
-  //size(800, 800);
   frameRate(myframerate);
-  //println(frameRate);
   
   background(bgcolor);
-  framenum = frameCount;
+
   table = loadTable("3as.csv", "header");
   newTable = new Table();
   newTable.addColumn("picture");
@@ -66,16 +65,22 @@ public void setup() {
     trialnums.append(i);
   }
   trialnums.shuffle();
-  //println(trialnums.max());
-  //println(trialnums.min());
+
+  for (int i = 0; i < table.getRowCount(); i++) {
+    index = trialnums.get(i);
+    row = table.getRow(index);
+    newTable.addRow(row);
+    corrects[i] = PApplet.parseInt(row.getString("correctresponse"))+2;
+    pictures[i] = trim(row.getString("picture"));
+    stimuli[i] = trim(row.getString("stimulus"));
+  }
+
   blank = loadImage("blank.png");
-  black = loadImage("black.png");
-  curtime = millis();
 }
 
 public void draw() {
-  if (saveTime+pic1dur+stimdur+pic2dur+endblankdur<frameCount) {
-    //println("xxxx");
+  if (saveTime+pic1dur+stimdur+pic2dur+endblankdur<=millis()) {
+
     rowCount += 1;
     FirstPicFlag = true;
     noMore = true;
@@ -83,21 +88,21 @@ public void draw() {
     if (rowCount >= table.getRowCount()) {
       exit();
     }
-    saveTime = frameCount;
-  } else if (saveTime+pic1dur+stimdur+pic2dur<frameCount) {
-    //println(frameCount);
+    saveTime = millis();
+  } else if (saveTime+pic1dur+stimdur+pic2dur<=millis()) {
+
     showBlank = true;
     showPic1 = false;
     showStim = false;
     showPic2 = false;
-  } else if (saveTime+stimdur+pic1dur<frameCount) {
-    //println(frameCount);
+  } else if (saveTime+stimdur+pic1dur<=millis()) {
+
     showPic2=true;
     showBlank = false;
     showPic1 = false;
     showStim = false;
-  } else if (saveTime+pic1dur<frameCount) {
-    //println(frameCount);
+  } else if (saveTime+pic1dur<=millis()) {
+
     showStim = true;
     showPic1 = false;
     showPic2 = false;
@@ -106,21 +111,13 @@ public void draw() {
       stimTime = millis();
       stimflag = false;
     }
-  } else if (saveTime<frameCount) {
+  } else if (saveTime<=millis()) {
     if (FirstPicFlag) {
       stimflag = true;
-      f4=true;
-      int tmptime = millis();
-      index = trialnums.get(rowCount);
-      row = table.getRow(index);
-      newTable.addRow(row);
-      correct = PApplet.parseInt(row.getString("correctresponse"))+2;
-      picture = loadImage(trim(row.getString("picture")));
-      stimulus = loadImage(trim(row.getString("stimulus")));
-      calctime = millis()-tmptime;
-      frameadj=round(calctime/myframerate);
-      //println(frameadj);
-      saveTime -= frameadj;
+      correct = corrects[rowCount];
+      picture = loadImage(pictures[rowCount]);
+      stimulus = loadImage(stimuli[rowCount]);
+
       FirstPicFlag = false;
       showPic1 = true;
       showStim = false;
@@ -132,33 +129,12 @@ public void draw() {
 
   if (showBlank) {
     image(blank, width/4, height/4, width/2, height/2);
-    if (f1) {
-      //println(millis()-curtime,frameCount-framenum,frameRate);
-      f1=false;
-    }
   } else if (showPic2) {
     image(picture, width/4, height/4, width/2, height/2);
-    if (f2) {
-      //println(millis()-curtime,frameCount-framenum,frameRate);
-      f2=false;
-      f1=true;
-    }
   } else if (showStim) {
     image(stimulus, width/4, height/4, width/2, height/2);
-    if (f3) {
-      //println(millis()-curtime,frameCount-framenum,frameRate);
-      f3=false;
-      f2=true;
-    }
   } else if (showPic1) {
     image(picture, width/4, height/4, width/2, height/2);
-    if (f4) {
-      //println(millis()-curtime);
-      curtime = millis();
-      framenum = frameCount;   
-      f4=false;
-      f3=true;
-    }
   }
   if (init) {
     fill(0);
@@ -169,7 +145,7 @@ public void draw() {
 public void keyPressed() {
 
   if (key == ' ') {
-    saveTime = frameCount+6;
+    saveTime = millis()+100;
     init = false;
     background(bgcolor);
   }
@@ -209,8 +185,7 @@ public void exit() {
   String minuteS = String.valueOf(minute());
   String myfilename = "AS3out"+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
   saveTable(newTable, myfilename, "csv");
-
-  println("exiting");
+  
   super.exit();
 }
   public void settings() {  fullScreen(); }
