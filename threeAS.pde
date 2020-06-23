@@ -29,7 +29,7 @@ String [] pictures = new String[tablesize];
 String [] stimuli = new String[tablesize];
 boolean init = true;
 void setup() {
-  frameRate(myframerate);
+  //frameRate(myframerate);
   fullScreen();
   background(bgcolor);
 

@@ -29,7 +29,7 @@ String [] pictures = new String[tablesize];
 String [] stimuli = new String[tablesize];
 boolean init = true;
 void setup() {
-  frameRate(myframerate);
+  //frameRate(myframerate);
   fullScreen();
   background(bgcolor);
 
@@ -128,7 +128,7 @@ void draw() {
 
 void keyPressed() {
 
-  if (key == ' ') {
+  if (key == ' ' && init) {
     saveTime = millis()+100;
     init = false;
     background(bgcolor);
@@ -164,10 +164,11 @@ void keyPressed() {
 }
 
 void exit() {
+  String monthS = String.valueOf(month());
   String dayS = String.valueOf(day());
   String hourS = String.valueOf(hour());
   String minuteS = String.valueOf(minute());
-  String myfilename = "AS3out"+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
+  String myfilename = "AS3out"+"-"+monthS+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
   saveTable(newTable, myfilename, "csv");
   
   super.exit();
