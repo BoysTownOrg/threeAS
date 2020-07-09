@@ -1,3 +1,8 @@
+import uibooster.*; //<>//
+
+UiBooster booster;
+File directory;
+
 int pic1dur = 400;  //in msec
 int stimdur = 400;
 int pic2dur = 400;
@@ -11,6 +16,7 @@ String instructionText = "Whenever you see numbers appear on the screen,\n\n"+
   "you press the number keys 3, 4, 5, or 6 \n\n"+"according to HOW MANY numbers you see on the screen.\n\n"+
   "Try to respond as quickly and accurately as you can.\n\n"+
   "Press space to begin.";
+String myfilename;
 int myframerate = 60;
 
 PImage picture, stimulus, blank;
@@ -32,7 +38,7 @@ void setup() {
   //frameRate(myframerate);
   fullScreen();
   background(bgcolor);
-
+  booster = new UiBooster();
   table = loadTable("3as.csv", "header");
   newTable = new Table();
   newTable.addColumn("picture");
@@ -163,13 +169,22 @@ void keyPressed() {
   }
 }
 
+void fileSelected(File selection) {
+  if (selection == null) {
+    println("Window was closed or the user hit cancel.");
+  } else {
+    println("User selected " + selection.getAbsolutePath());
+  }
+}
+
 void exit() {
   String monthS = String.valueOf(month());
   String dayS = String.valueOf(day());
   String hourS = String.valueOf(hour());
   String minuteS = String.valueOf(minute());
-  String myfilename = "AS3out"+"-"+monthS+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
-  saveTable(newTable, myfilename, "csv");
-  
+  myfilename = "AS3out"+"-"+monthS+"-"+dayS+"-"+hourS+"-"+minuteS+".csv";
+  directory = booster.showDirectorySelection();
+  saveTable(newTable, directory.getAbsolutePath() + "/" +myfilename, "csv");
+
   super.exit();
 }
